@@ -1,0 +1,46 @@
+{% extends 'base.html' %} 
+
+{% block scripts %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+{% endblock scripts %}  
+
+{% block title %} | Editeaza profil{% endblock title %}
+
+{% block content %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+    <h3>Editeaza profilul lui {{pet.petName}}</h3><br>
+    {% include 'alerts.html' %}
+    <img class="img-thumbnail" id="img-thumbnail" style="height:286px;" src="{{ pet.petPhoto.url }}" alt="Foto {{ pet.petName }}">
+    <div class="d-flex justify-content-evenly" style="width:300px">
+        <button type="button" class="btn btn-info btn-sm" id="alege-poza">Alege poza</button>
+        <button type="button" class="btn btn-danger btn-sm" id="sterge-poza">Sterge poza</button> 
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-end">
+            <a class="btn btn-secondary mx-2" href="{{ pet.get_absolute_url }}">Anuleaza</a>
+            <input type="submit" class="btn btn-info"value="Salveaza">
+        </div>
+    </form>
+    </div>
+{% include 'crop.html' %}
+{% endblock content %}
+{% block extra_body %}
+<script>
+    $("#id_petSpecies").change(function () {
+        const url = "/petprofile/ajax/load-breeds/";  
+        const speciesId = $(this).val();  
+        $.ajax({                  
+            url: url,               
+            data: {
+                'species_id': speciesId      
+            },
+            success: function (data) {   
+                $("#id_petBreed").html(data);  
+            }
+        });
+    });
+</script>
+{% endblock extra_body %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %} | {{ petName|title }} album{% endblock title %}
+{% block content %}
+{% block extra_head %}
+<meta property="og:image" content="{{ extra_photos.first.petExtraImg.url }}">
+<meta property="og:title" content="Album foto | {{ petName|title }}">
+<meta property="description" content="Album foto | {{ petName|title }}">
+{% endblock extra_head %}
+<div class="shadow p-sm-5 p-2" style="min-height:65vh">
+    <a class="text-decoration-none" href="{% url 'petprofile-detail' petSlug %}{{query_string}}"><i class="bi bi-arrow-left-square me-2"></i>inapoi la profil</a>
+    <h4 class="mt-3">{{ petName|title }} | Album foto</h4><br>
+    <!-- Photo Grid -->
+    <div class="row g-2 align-items-center"> 
+        {% for ph in extra_photos %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 position-relative">
+            <img src="{{ ph.petExtraImg.url }}" class="zoom-imgs" style="width:100%;" alt="pet profile: {{ph.petProfile.petName|title}} {{ph.petProfile.petSpecies}} {{ph.petProfile.petBreed}} - photo {{ph.pk}}">
+            {% if ph.petProfile.owner == request.user %}
+                <a class="fs-5 position-absolute bottom-0 start-0 bg-white" href="#" data-bs-toggle="modal" data-bs-target="#delete-img" data-bs-imgdelurl="{% url 'delete-extra-photo' ph.pk %}{{query_string}}"><i class="bi bi-trash text-danger"></i></a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+     {% comment %} modal for deleting extra image {% endcomment %}
+    <div class="modal fade" id="delete-img" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Confirma stergerea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sigur doresti sa stergi fotografia?</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="petImgDelete" action="" method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Anuleaza</button>
+                            <button type="submit" class="btn btn-danger">Sterge</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            //delimg
+            let imgDelModal = document.getElementById('delete-img')
+            imgDelModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                let delButton = event.relatedTarget;
+                // Extract info from data-bs-* attributes
+                let delUrl = delButton.getAttribute('data-bs-imgdelurl');
+                let modalFormImgDel = imgDelModal.querySelector('#petImgDelete');
+                modalFormImgDel.action = delUrl;
+            })
+        </script>
+    </div>
+</div>
+{% endblock content %}

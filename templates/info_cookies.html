@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %} | Cookies{% endblock title %}
+{% block content %}
+<h5>Ce sunt cookie-urile?</h5>
+<p>Fisierele cookie sunt fisiere text mici trimise de serverul unui site web catre un navigator web (web browser: Chrome, Firefox, Microsoft Edge, Opera), memorie RAM sau unitate de hard disk si apoi stocate acolo. Acestea pot fi utilizate cu scopuri diferite, cum ar fi: personalizarea site-ului web in functie de nevoile unui anumit utilizator, ajutarea unui utilizator sa navigheze pe site-ul web, imbunatatirea calitatii site-ului web pentru utilizator sau stocarea preferintelor utilizatorului si informatiilor de conectare.
+</p>
+<div>
+<h5>Cookie-uri esentiale si neesentiale</h5>
+    <p>Cookie-urile pot fi clasificate drept "esentiale" sau "neesentiale".
+    </p>
+    <u>Cookie-urile esentiale:</u> prezinta una dintre urmatoarele doua caracteristici:
+    <ul>
+        <li>sunt utilizate exclusiv pentru efectuarea sau facilitarea comunicarii intr-o retea;</li>
+        <li>sunt strict necesare pentru furnizarea unui serviciu online (de ex. site-ul nostru sau un serviciu de pe site-ul nostru) solicitat de catre tine.</li>
+    </ul>
+    <p><u>Cookie-uri neesentiale:</u> Acestea nu se incadreaza in definitia cookie-urilor esentiale deoarece nu sunt strict necesare pentru functionarea unui site sau a serviciilor oferite pe acesta, precum cookie-urile utilizate pentru analizarea comportamentul pe un site web (cookie-uri "analitice") sau cookie-urile utilizate pentru afisarea de reclame.
+    </p>
+    <p>Poti gasi informatii aditionale despre cookie-uri accesand urmatorul site web  <a class="text-decoration-none" href="https://ro.wikipedia.org/wiki/Cookie">ro.wikipedia.org</a></p>
+</div>
+<div>
+    <h5>Site-ul <a class="text-decoration-none" href="https://petprofile.ro">PetProfile.ro</a> utilizeaza 3 cookie-uri esentiale, strict necesare pentru functionarea site-ului si 2 cookie-uri analitice</h5>
+    Cele esentiale sunt:
+    <ul>
+        <li><strong>sessionid:</strong> un identificator de sesiune sau un jeton de sesiune este o bucata de date care este utilizata in comunicatiile de retea pentru a identifica o sesiune, o serie de schimburi de mesaje conexe;</li>
+        <li><strong>csrftoken:</strong> acest cookie este un jeton de securitate ce previne atacuri de tip "Cross-Site Request Forgery" si este esential pentru securitatea site-ului;</li>
+        <li><strong>cookieUse:</strong> salveaza consimtamantul utilizatorului referitor la utilizarea cookie-urilor.</li>
+    </ul>
+    Cele analitice sunt:
+    <ul>
+        <li><strong>_ga</strong> si <strong>_ga*:</strong> ne ofera date statistice anonimizate despre utilizare site-ului, ne permite sa vedem paginile cele mai accesate si sa putem calcula resursele necesare pentru ca site-ul sa se incarce rapid.</li>
+    </ul>
+</div>
+{% endblock content %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="shadow p-sm-5 p-2">
+        <div class="error-template">
+            <h3>Oops!</h3>
+            <h2>403 - acces interzis</h2>
+            <div class="error-details">
+                Se pare ca nu ai acces!
+            </div>
+            <div class="error-actions my-4">
+                <a href="{% url 'homepage' %}" class="btn btn-info"><span class="glyphicon glyphicon-home"></span>Pagina principala</a>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

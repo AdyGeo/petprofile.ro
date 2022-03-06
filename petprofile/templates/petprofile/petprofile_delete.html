@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+   
+{% block title %} | Sterge profil{% endblock title %}
+
+{% block content %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+    <h3>Sterge profilul lui {{ pet.petName|title }}</h3><br>
+    <br>
+    {% include 'alerts.html' %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="container">
+            <p>Sigur doresti sa stergi profilul: "<strong>{{ pet.petName|title }}</strong>"?</p>
+            <p>Datele acestui profil vor si sterse definitiv.</p>
+            <div class="d-flex justify-content-even my-5">
+                <a class="btn btn-secondary mx-2" href="{{ pet.get_absolute_url }}">Anuleaza</a>
+                <input type="submit" class="btn btn-danger"value="Sterge profilul">
+            </div>
+        </div>
+    </form>
+    </div>
+{% endblock content %}

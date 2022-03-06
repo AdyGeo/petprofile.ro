@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+
+{% block extra_head %}
+<meta name="description" content="Pet Profile este platforma unde ne dorim sa impartasim informatii, comportamente, obiceiuri, intamplari cu si despre ei, prietenii nostri necuvantatori.">
+<meta property="og:title" content="PetProfile.ro">
+<meta property="og:description" content="Cele mai cool animale de companie!">
+{% endblock extra_head %}
+{% block content %}
+    <div class="d-flex mb-4 flex-wrap-reverse flex-sm-nowrap">
+        <div class="nav-item dropdown align-self-center">
+            <a class="nav-link dropdown-toggle text-dark fs-5 animation-target" href="#" id="navbarDropdownMenuLinkFilter" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-funnel"></i>
+            </a>
+            <ul class="dropdown-menu" id="filterArea" aria-labelledby="navbarDropdownMenuLinkFilter">
+                <li class="dropdown-item btn" id="Toate">Toate</li>
+                {% for category in categories %}
+                <li><a class="dropdown-item" href="#">{{ category }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="nav-item dropdown align-self-center">
+            <a class="nav-link dropdown-toggle text-dark fs-5 animation-target" href="#" id="navbarDropdownMenuLinkSort" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-sort-alpha-down"></i>
+            </a>
+            <ul class="dropdown-menu" id="sortArea" aria-labelledby="navbarDropdownMenuLinkSort">
+                <li><a class="dropdown-item" href="#">Cele mai noi</a></li>
+                <li><a class="dropdown-item" href="#">Data ultimei actualizari</a></li>
+                <li><a class="dropdown-item" href="#">Aprecieri descrescator</a></li>
+                <li><a class="dropdown-item" href="#">Comentarii descrescator</a></li>
+            </ul>
+        </div>
+        <form class="d-flex w-100" method="GET" id='qform' action="{% url 'homepage' %}">
+            <input class="form-control" type="search" name="q" id="q" placeholder="Cauta aici..." aria-label="Cauta">
+            <button class="btn btn-info" type="submit" id='qBtn'><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+
+    {% include 'alerts.html' %}
+
+    {% include '_carousel.html' %}
+
+    <div class="row justify-content-center row-cols-auto">
+        {% for pet in petprofiles %}
+        <div class="col mt-4">
+            <div class="card profilecard shadow border-2" id="{{pet.petSlug}}" style="width: 18rem; height: 28rem;">
+                <div style="height:18rem;">
+                    <img src="{{ pet.petPhoto.url }}" class="card-img-top" alt="pet profile foto for {{ pet.petName }}-{{ pet.petSpecies }}-{{ pet.petBreed }}">
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="text-nowrap overflow-hidden pb-1">{{ pet.petName|title }}</h4>
+                    <h6 class="card-text"> {{ pet.petSpecies }} | {{ pet.petBreed }} |
+                    {% if pet.petGender == "F" %}
+                        <span class="badge rounded-pill fcolor"><i class="bi bi-gender-female"> F</i></span>
+                    {% elif pet.petGender == "M" %}
+                        <span class="badge rounded-pill bg-info text-dark"><i class="bi bi-gender-male"> M</i></span>
+                    {% else %}
+                        <span class="badge rounded-pill bg-secondary"><i class="bi bi-gender-ambiguous"> N</i></span>
+                    {% endif %}
+                    </h6>
+                    <p><i class="bi bi-heart-fill text-danger"></i>&nbsp;{{ pet.likesCount }}
+                        <a class="stretched-link v-hidden" href="{{ pet.get_absolute_url }}{{query_string}}"></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <h5 class="mt-5">Nu am gasit ceea ce cauti. Incearca din nou.</h5>
+        {% endfor %}
+    </div>
+    
+    {% if petprofiles %}
+    <div class="row mt-4 py-4">
+        <nav aria-label="page-navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link text-dark" href="?{% url_replace page=page_obj.previous_page_number %}"><i class="bi bi-chevron-left"></i></a></li>
+                {% endif %}
+
+                {% if page_obj.number|add:'-2' > 1 %}
+                    <li class="page-item"><a class="page-link text-dark" href="?{% url_replace page=page_obj.number|add:'-3' %}">&hellip;</a></li>
+                {% endif %}
+
+                {% for i in page_obj.paginator.page_range %}
+                    {% if page_obj.number == i %}
+                        <li class="page-item"><span class="page-link bg-info text-dark">{{ i }} <span class="sr-only"></span></span></li>
+                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link text-dark" href="?{% url_replace page=i %}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
+                    <li class="page-item"><a class="page-link text-dark" href="?{% url_replace page=page_obj.number|add:'3' %}">&hellip;</a></li>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link text-dark" href="?{% url_replace page=page_obj.next_page_number %}"><i class="bi bi-chevron-right"></i></a></li>
+                {% endif %}
+            </ul>                             
+        </nav>
+    </div>
+    {% endif %}
+
+
+{% endblock content %}

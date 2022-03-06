@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+
+{% block scripts %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.js"></script>
+{% endblock scripts %}  
+
+{% block title %} | Sterge cont{% endblock title %}
+
+{% block content %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+    <h3>Stergerea profilului de utilizator</h3><br>
+    <p>Sigur doresti sa stergi profilul tau de utilizator: "<strong>{{ request.user }}</strong>"?</p>
+    <p>Toate datele asociate contului tau (inclusiv profilurile animalelor tale de companie) vor fi sterse definitiv si nu vor mai putea fi recuperate.</p>
+    {% include 'alerts.html' %}
+    <form class='form-check form-switch' method="POST">
+        {% csrf_token %}
+        {{ form.confirma_stergerea }}{{ form.confirma_stergerea.help_text}}
+        <div class="d-flex justify-content-end">
+            <a class="btn btn-secondary mx-2" href="{% url 'userprofile' %}">Anuleaza</a>
+            <input type="submit" class="btn btn-danger"value="Sterge definitiv">
+        </div>
+    </form>
+    </div>
+
+{% endblock content %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %} | Notificari{% endblock title %}
+{% block content %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+        {% if notifications %}
+        <h4>Notificarile tale</h4>
+        <form class='form-check form-switch' id="email-notif-acc" method="POST" action="{% url "email-notif-acc" request.user.pk %}?next=notification-list">
+            {% csrf_token %}
+            <input class="form-check-input" name="email_notif" type="checkbox" id="flexSwitch" {% if email_notif %}checked{% endif %}>
+            <label class="form-check-label" for="flexSwitch">notificari PetProfile pe e-mail</label>
+        </form>
+        <br>
+        {% for notification in notifications %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <p class="my-0"><i class="bi bi-bell"></i> notificare pentru {% if notification.notification_type != 3 %}<a class="text-decoration-none" href="{{ notification.petProfile.get_absolute_url }}">{{ notification.petProfile.petName }}</a>{% else %}<strong>tine</strong>{% endif %}<small> acum {{ notification.created|timesince }}</small>
+                {% if not notification.user_has_seen %}<span class="badge bg-secondary">Nou</span>{% endif %}
+                </p>
+            </div>
+            <div class="card-body">
+                <blockquote class="blockquote my-0">
+                {% if notification.notification_type == 1 %}
+                    <p class="fs-6 my-0"><a class="text-decoration-none" href="{% url 'someuser-petprofiles' notification.from_user.pk %}">{{ notification.from_user }}</a> ti-a apreciat profilul <i class="bi bi-heart-fill text-danger"></i></p>
+                {% elif notification.notification_type == 2 %}
+                    <p class="fs-6 my-0"><a class="text-decoration-none" href="{% url 'someuser-petprofiles' notification.from_user.pk %}">{{ notification.from_user }}</a> a postat un comentariu</p>
+                    <footer class="fs-6 my-0"><i class="bi bi-chat-dots text-warning"></i> <cite>{{ notification.comment }}</cite></footer>
+                {% elif notification.notification_type == 3 %}
+                    <p class="fs-6 my-0"><a class="text-decoration-none" href="{% url 'someuser-petprofiles' notification.from_user.pk %}">{{ notification.from_user }}</a> a raspuns la un comentariu postat de tine pe profilul <a class="text-decoration-none" href="{{ notification.petProfile.get_absolute_url }}">{{ notification.petProfile.petName }}</a></p>
+                    <footer class="fs-6 my-0"><i class="bi bi-chat-dots text-warning"></i> <cite>{{ notification.comment }}</cite></footer>
+                {% endif %}
+                </blockquote>
+            </div>
+        </div>
+       {% endfor %}
+        
+        <div class="row mt-4 py-4">
+            <nav aria-label="page-navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+                    {% endif %}
+
+                    {% if page_obj.number|add:'-2' > 1 %}
+                        <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.number|add:'-3' }}">&hellip;</a></li>
+                    {% endif %}
+
+                    {% for i in page_obj.paginator.page_range %}
+                        {% if page_obj.number == i %}
+                            <li class="page-item"><span class="page-link bg-info text-dark">{{ i }} <span class="sr-only"></span></span></li>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link text-dark" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
+                        <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.number|add:'3' }}">&hellip;</a></li>
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+                    {% endif %}
+                </ul>                             
+            </nax>
+        </div>
+        {% else %}
+        <h5>Nu ai notificari</h5>
+        {% endif %}
+
+    </div>
+
+
+{% endblock content %}

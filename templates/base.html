@@ -1,0 +1,131 @@
+{% load static %}
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static '/petprofile/style.css' %}?version=6">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static '/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static '/favicon/site.webmanifest' %}">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6WR0DNF6XN"></script>
+    <script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-6WR0DNF6XN', { 'anonymize_ip': true });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    {% block scripts %}{% endblock scripts %}
+    <title> PetProfile{% block title %}{% endblock title %}</title>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="bg-light">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <button class="navbar-toggler position-relative border border-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                    {% if user.is_authenticated and user.notification_to|new_notif_count %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ user.notification_to|new_notif_count }}</span>
+                    {% endif %}
+                </button>
+                <a class="navbar-brand" href="{% url 'homepage' %}">
+                     <img src="{% static '/petprofile/PetProfile-logo.png' %}" alt="petprofile logo" height="70">
+                </a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+		    {% comment %}
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="https://maicumotz.ro" target="_blank"><i class="bi bi-cart3 me-1"></i>Petshop&nbsp;<i class="bi bi-arrow-right-short"></i>&nbsp;<span class="text-info fw-bold fst-italic">MaiCuMotz.ro</span></a>
+                        </li>
+                    </ul>
+		    {% endcomment %}
+                    <ul class="navbar-nav ms-auto">
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'user-petprofiles' %}"><img class="align-baseline me-1" height="14" src="{% static '/petprofile/paw.svg' %}">Profiluri</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'notification-list' %}"><i class="bi bi-bell-fill me-1"></i>Notificari
+                            {% with user.notification_to|new_notif_count as new_notifs %}
+                            {% if new_notifs %}
+                            <span class="badge rounded-pill bg-danger">{{ new_notifs }}</span>
+                            {% endif %}
+                            {% endwith %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'userprofile' %}"><img class="align-baseline me-1" height="14" src="{% static '/petprofile/user-cog.svg' %}" alt="user profile">{{ user.username }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'account_logout' %}"><img class="align-baseline me-1" height="14" src="{% static '/petprofile/sign-out.svg' %}" alt="sign out">Deconecteaza-te</a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'account_login' %}"><img class="align-baseline me-1" height="14" src="{% static '/petprofile/sign-in.svg' %}" alt="sign in">Conecteaza-te</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'account_signup' %}"><i class="bi bi-person-plus-fill me-1"></i>Creeaza cont</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+            </nav>
+        </div>
+    </header>
+    <div class="container mt-3 mb-3" style="min-height:65vh">
+        <main>
+        {% block content %}{% endblock content %}
+        </main>
+    </div>
+    {% block extra_body %}{% endblock extra_body %}
+    <div class="d-grid d-sm-block text-center pb-4" id="cookie-container">
+      <p>
+        Acest site foloseste cookies.<br>
+        Navigand in continuare, iti exprimi acordul asupra folosirii acestora.<br>
+        <a href="{% url 'info-cookies' %}">Afla mai multe!</a>
+      </p>
+      <button class="btn btn-info btn-sm col-sm-3" type="button" id="cookie-btn">Accept</button>
+    </div>
+    <footer class='bg-light pt-4'>
+        <div class="container">
+            <div class='row'>
+                <div class="col-sm-6 col-12">
+                    <h5>PetProfile</h5>
+                    <p><strong><i class="bi bi-envelope me-1"></i></strong><a class="text-decoration-none" href="mailto:petprofile.contact@gmail.com">petprofile.contact@gmail.com</a></p>
+                </div>
+                <div class="col-sm-6 col-12">
+                    <ul class="list-unstyled">
+                        <li class="mb-1"><a class="text-decoration-none text-muted mb-2" href="{% url 'about' %}">Despre noi</a></li>
+                        <li class="mb-1"><a class="text-decoration-none text-muted" href="{% url 'info-confidentialitate' %}">Confidentialitate</a></li>  
+                        <li class="mb-1"><a class="text-decoration-none text-muted" href="{% url 'info-cookies' %}">Cookies</a></li>         
+                        <li class="mb-1"><a class="text-decoration-none text-muted" href="https://maicumotz.ro" target="_blank"><i class="bi bi-cart3 me-1"></i>Petshop&nbsp;<i class="bi bi-arrow-right-short"></i>&nbsp;<span class="text-info fw-bold fst-italic">MaiCuMotz.ro</span></a></li>          
+                    </ul>
+                </div>
+                {% comment %} <div class="col-sm-3 col-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-1"><a class="text-decoration-none text-muted" href="#">bla bla bla</a></li>
+                        <li class="mb-1"><a class="text-decoration-none text-muted" href="#">bla bla bla</a></li>
+                        <li class="mb-1"><a class="text-decoration-none text-muted" href="#">bla bla bla</a></li>                    
+                    </ul>
+                </div> {% endcomment %}
+                <div class="col-12 text-center">
+                    <hr>
+                    <span class="small">PetProfile &copy; Toate drepturile rezervate</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="{% static '/petprofile/medium-zoom.min.js' %}" type="text/javascript" defer></script>
+    <script src="{% static '/petprofile/script.js' %}?version=6" type="text/javascript" defer></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block scripts %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+{% endblock scripts %}   
+{% block title %} | {{ pet.petName }}{% endblock title %}
+{% block extra_head %}
+<meta name="description" content="Pet Profile: {{ pet.petName }} | {{ pet.petSpecies }} | {{ pet.petBreed }}. {{ pet.petDescription }}">
+<meta property="og:image" content="{{ pet.petPhoto.url }}">
+<meta property="og:title" content="{{ pet.petName }}">
+<meta property="og:description" content="{{ pet.petSpecies }} | {{ pet.petBreed }}">
+<link rel="canonical" href="https://petprofile.ro{{ pet.get_absolute_url }}"/>
+
+{% endblock extra_head %}
+{% block content %}
+    {% include 'alerts.html' %}
+    <div class="card mb-3 p-2 shadow">
+        <a class="text-decoration-none" href="{% url 'homepage' %}{{query_string}}#{{pet.petSlug}}"><i class="bi bi-arrow-left-square me-2"></i>inapoi la lista</a>
+        <div class="row g-0 mt-2">
+            <div class="col-md-4">
+                <img src="{{ pet.petPhoto.url }}" class="img-fluid rounded-start" id="zoom-img" alt="Foto {{ pet.petName }}">
+                <div class="row g-2 align-items-center mt-1 mb-3">
+                    {% for img in extra_photos %}
+                        <div class="col-3">
+                            <a href="{% url 'pet-extra-photos' pet.petSlug %}{{query_string}}">
+                                <img src="{{ img.petExtraImg.url }}" style="width:100%">
+                            </a>
+                        </div>
+                    {% endfor %}
+                    {% if request.user == pet.owner %}
+                        <div class="col-3">
+                            <a class="fs-4" id="addImageBtn"><img class="align-middle" width="60%" src="{% static '/petprofile/add-img.svg' %}"></a>
+                            <form id="addExtraImgForm" action="{% url 'add-extra-photo' pet.petSlug %}{{query_string}}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input class="d-none" type="file" name="petExtraImg" accept="image/*" required="" id="id_petExtraImg">
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+                {% include 'like.html' %}
+                <div id="alert-box">
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <div class="d-flex gap-3 mt-3 mb-2">
+                        <h3 class="card-title">{{ pet.petName|title }}</h3>
+                        {% if pet.owner == request.user %}
+                        <a class="fs-4" href="{% url 'petprofile-update' pet.petSlug  %}{{query_string}}"><i class="bi bi-pencil-square text-primary"></i></a>
+                        <a class="fs-4" href="#" data-bs-toggle="modal" data-bs-target="#sterge-profil"><i class="bi bi-trash text-danger"></i></a>
+                         {% endif %}
+                    </div>
+                    <p class="card-text"><span class="h6">Pet profile adaugat de:</span>&nbsp;<a class="text-decoration-none" href="{% url 'someuser-petprofiles' pet.owner.pk %}">{{ pet.owner }}</a></p>
+                    <p class="card-text"><span class="h6">Specie:</span> {{ pet.petSpecies }}</p>
+                    <p class="card-text"><span class="h6">Rasa:</span> {{ pet.petBreed }}</p>
+                    <p class="card-text"><span class="h6">Gen:</span> {{ pet.get_petGender_display }}</p>
+                    <div class="d-flex my-2">
+                        <p class="card-text me-4"><i class="bi bi-heart-fill text-danger"></i> <span id="liked">{{ pet.likesCount }}</span></p>
+                        <a href="#petprofile-comments" class="text-decoration-none text-dark"><p class="card-text"><i class="bi bi-chat-dots"> </i><span id="comments">{{ pet.commentsCount }}</span></p></a>
+                    </div>
+                    <p class="card-text"><span class="h6">Despre <strong>{{pet.petName}}</strong>:</span> {{ pet.petDescription|linebreaks }}</p>
+                    <p class="card-text lastupdated mb-2"><small class="text-muted">Ultima actualizare acum {{ pet.PetProfileUpdateDate|timesince}}</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% comment %} modal for deleting petprofile {% endcomment %}
+    <div class="modal fade" id="sterge-profil" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Confirma stergerea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sigur doresti sa stergi profilul: "<strong>{{ pet.petName }}</strong>"?</p>
+                <p>Datele acestui profil vor si sterse definitiv.</p>
+            </div>
+            <div class="modal-footer">
+                <form action="{% url "petprofile-delete" pet.petSlug %}{{query_string}}" method="POST">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuleaza</button>
+                    <button type="submit" class="btn btn-danger">Sterge profilul</button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} comments section {% endcomment %}
+    <div class="card mb-3 p-2 shadow" id="petprofile-comments">
+        <div class="col">
+            <div class="card-body">
+                <div class="d-flex mb-3">
+                    <h5 class="card-title me-3">{{ pet.commentsCount }} comentar{{ pet.commentsCount|pluralize:'iu,ii' }}</h5>
+                    {% if request.user.is_authenticated %}
+                    <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#create-comment"><i class="bi bi-chat-dots"></i> Comenteaza</button>
+                    {% else %}
+                    <button class="btn btn-sm btn-outline-dark" type="button" onclick="commentAlert()"><i class="bi bi-chat-dots"></i> Comenteaza</button>
+                    {% endif %}
+                    
+                </div>
+                {% for comment in petprofile_comments %}
+                <div class="mb-2 border-bottom {% if comment.pk != comment.main_thread %}ps-4{% endif %}"><small class="text-muted"><a class="text-decoration-none" href="{% url 'someuser-petprofiles' comment.commentator.pk %}">{{comment.commentator}}</a></small>
+                    {% if pet.owner == request.user or comment.commentator == request.user %}
+                    <a class="mx-2 float-end deletePetComment" href="#" data-bs-toggle="modal" data-bs-target="#delete-comment" data-bs-commdel="{{ comment.comment }}" data-bs-commdelurl="{% url 'pet-comment-delete' comment.pk %}{{query_string}}"><i class="bi bi-trash text-danger"></i></a>
+                    {% endif %}
+                    {% if comment.commentator == request.user %}
+                    <a class="mx-2 float-end" href="#" data-bs-toggle="modal" data-bs-target="#edit-comment" data-bs-commedit="{{ comment.comment }}" data-bs-commediturl="{% url 'pet-comment-edit' comment.pk %}{{query_string}}"><i class="bi bi-pencil-square"></i></a>
+                    {% endif %}
+                    <br><div class="rounded-3 px-2 d-inline-block" style="background-color:#E8E8E8;">{{comment.comment|capfirst}}</div>
+                    {% if request.user.is_authenticated %}
+                    <br><small><strong><a class="text-decoration-none text-dark" href="#" data-bs-toggle="modal" data-bs-commreply="{{ comment.pk }}" data-bs-commthread="{{ comment.comment_main_thread.pk|default:comment.pk }}" data-bs-target="#create-comment">Raspunde &#67871;</strong></small></a>
+                    {% else %}
+                    <br><small><strong><a class="text-decoration-none text-dark" href="#" onclick="commentAlert()">Raspunde &#67871;</strong></small></a>
+                    {% endif %}
+                    <small class="text-muted"><i class="bi bi-clock"></i>&nbsp;{{comment.created|timesince}}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% comment %} modal for commenting on petprofile {% endcomment %}
+    <div class="modal fade" id="create-comment" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Comenteaza</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Scrie un comentariu pentru: "<strong>{{ pet.petName }}</strong>"?</p>
+            </div>
+            <div class="modal-footer">
+                <form class="w-100" action="{% url "pet-comment-create" pet.petSlug %}{{query_string}}" method="POST">
+                    {% csrf_token %}
+                    <input class="d-none" type="number" id="parent_comment_id" name="parent_comment" step="1">
+                    <input class="d-none" type="number" id="main_thread_id" name="comment_main_thread" step="1">
+                    <textarea class="w-100" name="comment" id="comment_id" rows="5" maxlength="1000" required ></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Anuleaza</button>
+                        <button type="submit" class="btn btn-info">Posteaza</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        <script>
+            //createcomm
+            let commentCreateModal = document.getElementById('create-comment')
+            commentCreateModal.addEventListener('show.bs.modal', function (event){
+                // Button that triggered the modal
+                let replyButton = event.relatedTarget;
+                // Extract info from data-bs-* attributes
+                let commReplyId = replyButton.getAttribute('data-bs-commreply');
+                let commThreadId = replyButton.getAttribute('data-bs-commthread');
+                let modalFormParentComm = commentCreateModal.querySelector('#parent_comment_id');
+                let modalFormComThread = commentCreateModal.querySelector('#main_thread_id');
+                modalFormParentComm.value = commReplyId;
+                modalFormComThread.value = commThreadId;
+            })
+            commentCreateModal.addEventListener('hidden.bs.modal', function (event){
+               commentCreateModal.querySelector('#comment_id').value="";
+            })
+        </script>
+    </div>
+
+    
+    {% comment %} modal for deleting the comment {% endcomment %}
+    <div class="modal fade" id="delete-comment" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Sterge comentariu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Doresti sa stergi comentariul pentru "<strong>{{ pet.petName }}</strong>"?</p>
+                <p><strong>Comentariul tau: </strong>&quot;<span id="comm"></span>&quot;</p>
+            </div>
+            <div class="modal-footer">
+                <form id="petCommentDelete" action="" method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Anuleaza</button>
+                        <button type="submit" class="btn btn-danger">Sterge</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        <script>
+            //delcomm
+            let commentDelModal = document.getElementById('delete-comment')
+            commentDelModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                let delButton = event.relatedTarget;
+                // Extract info from data-bs-* attributes
+                let comm = delButton.getAttribute('data-bs-commdel');
+                let delUrl = delButton.getAttribute('data-bs-commdelurl');
+                let modalBodyComm = commentDelModal.querySelector('#comm');
+                let modalFormComm = commentDelModal.querySelector('#petCommentDelete');
+
+                modalBodyComm.innerHTML = comm;
+                modalFormComm.action = delUrl;
+            })
+        </script>
+    </div>
+
+
+    
+    {% comment %} modal for editing the comment {% endcomment %}
+    <div class="modal fade" id="edit-comment" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Editeaza comentariu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <p>Editeaza comentariul tau pentru "<strong>{{ pet.petName }}</strong>":</p>
+            </div>
+            <div class="modal-footer">
+                <form class="w-100" id="petCommentEdit" action="" method="POST">
+                    {% csrf_token %}
+                    <textarea class="w-100" name="comment" id="comment_id" rows="5" maxlength="10000" required></textarea>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Anuleaza</button>
+                        <button type="submit" class="btn btn-info">Salveaza</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        <script>
+            //editcomm
+            let commentEditModal = document.getElementById('edit-comment')
+            commentEditModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                let editButton = event.relatedTarget;
+                // Extract info from data-bs-* attributes
+                let comm = editButton.getAttribute('data-bs-commedit');
+                let editUrl = editButton.getAttribute('data-bs-commediturl');
+                let modalBodyComm = commentEditModal.querySelector('#comment_id');
+                let modalFormComm = commentEditModal.querySelector('#petCommentEdit');
+            
+                modalBodyComm.value = comm;
+                modalFormComm.action = editUrl;
+            })
+        </script>
+    </div>
+    <script>
+        const addImageBtn = document.getElementById('addImageBtn');
+        if(addImageBtn){
+            addImageBtn.addEventListener('click', function(){
+                document.querySelector('#id_petExtraImg').click(); 
+                return false;
+            })
+        }
+    </script>
+    {% include 'crop2.html' %}
+    
+{% endblock content %}

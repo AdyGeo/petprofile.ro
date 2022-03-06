@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %} | Contul utilizator{% endblock title %}
+{% block content %}
+    {% include 'alerts.html' %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+        {% if someuser_petprofiles %}
+        <h4>Pet Profilurile utilizatorului <strong>{{ someuser.username }}</strong></h4><br>
+        <div class="row justify-content-center row-cols-auto">
+            {% for pet in someuser_petprofiles %}
+            <div class="col mt-4">
+                <div class="card profilecard shadow border border-2" style="width: 17rem; height: 25rem;">
+                    <div style="height:16rem;">
+                        <img src="{{ pet.petPhoto.url }}" class="card-img-top" alt="Foto {{ pet.petName }}">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="text-nowrap overflow-hidden">{{ pet.petName|title }}</h5>
+                        <p class="card-text"> {{ pet.petSpecies }} | {{ pet.petBreed }} |
+                        {% if pet.petGender == "F" %}
+                            <span class="badge rounded-pill fcolor"><i class="bi bi-gender-female"> F</i></span>
+                        {% elif pet.petGender == "M" %}
+                            <span class="badge rounded-pill bg-info text-dark"><i class="bi bi-gender-male"> M</i></span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-secondary"><i class="bi bi-gender-ambiguous"> N</i></span>
+                        {% endif %}
+                        </p>
+                        <p><i class="bi bi-heart-fill text-danger"></i>&nbsp;{{ pet.likesCount }}
+                            <a class="stretched-link v-hidden" href="{{ pet.get_absolute_url }}"></a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <h5 class="mt-5">Nu exista niciun Pet Profile asociat utilizatorului <strong>{{ someuser.username }}</strong></h5>
+        {% endif %}
+    </div>
+{% endblock content %}

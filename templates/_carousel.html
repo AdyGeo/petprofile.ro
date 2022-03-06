@@ -1,0 +1,22 @@
+
+{% if banners %}
+<div id="carouselExampleIndicators" class="carousel carousel-dark slide mb-3" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    {% for banner in banners %}
+    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+      <a href="{{ banner.link }}" {% if not request.get_host in banner.link %}target="_blank"{% endif %}><img src="{{ banner.banner_img.url }}" class="d-block w-100" alt="banner"></a>
+    </div>
+    {% endfor %}
+  </div>
+  {% if banners.count > 1 %}
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Anterior</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Urmatorul</span>
+  </button>
+  {% endif %}
+</div>
+{% endif %}

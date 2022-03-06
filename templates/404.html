@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="shadow p-sm-5 p-2">
+        <div class="error-template">
+            <h3>Oops!</h3>
+            <h2>404 - pagina nu a fost gasita</h2>
+            <div class="error-details">
+                Ne pare rau, pagina pe care o cauti nu a fost gasita.
+            </div>
+            <div class="error-actions my-4">
+                <a href="{% url 'homepage' %}" class="btn btn-info"><span class="glyphicon glyphicon-home"></span>Pagina principala</a>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

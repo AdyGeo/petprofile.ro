@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %} | {% trans "Verify Your E-mail Address" %}{% endblock %}
+
+{% block content %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+    <h3>{% trans "Verify Your E-mail Address" %}</h3><br>
+    {% include "alerts.html" %}
+    <p>{% blocktrans %}We have sent an e-mail to you for verification. Follow the link provided to finalize the signup process. Please contact us if you do not receive it within a few minutes.{% endblocktrans %}</p>
+    </div>
+{% endblock content %}

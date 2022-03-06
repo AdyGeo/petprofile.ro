@@ -1,0 +1,120 @@
+
+
+<div class="modal" id="crop-img" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Decupeaza imaginea</h5>
+            <button type="button" class="btn-close" id="cancel-btnX" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="image-container" id="image-box">
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancel-btn">Anuleaza</button>
+            <button type="submit" class="btn btn-info" id="crop-btn">Decupeaza</button>
+        </div>
+        </div>
+    </div>
+</div>
+    
+ <script>
+    
+    const cropModal = document.getElementById('crop-img')
+    const imgThumb = document.getElementById('img-thumbnail')
+	const imagebox = document.getElementById('image-box')
+    const imgInput = document.getElementById('id_image')
+    const cancel_btn = document.getElementById('cancel-btn') 
+    const cancel_btnX = document.getElementById('cancel-btnX')  
+	const crop_btn = document.getElementById('crop-btn')
+    const currentThumbSrc = imgThumb.src
+    const alegeImageBtn = document.getElementById("alege-poza")
+    const deleteImageBtn = document.getElementById("sterge-poza")
+    const deleteImage = document.getElementById("id_delete_image")
+
+    deleteImageBtn.addEventListener("click", ()=>{
+        deleteImage.value = true;
+        imgThumb.src = '/media/petprofile-photo/avatar.png'
+    })
+
+
+	// When user uploads the image this event will get triggered
+	imgInput.addEventListener('change', ()=>{
+
+        // Getting image file object from the input variable
+        const img_data = imgInput.files[0]
+
+        let modal = bootstrap.Modal.getOrCreateInstance(cropModal)
+        modal.show();
+        
+        // createObjectURL() static method creates a DOMString containing a URL representing the object given in the parameter.
+        // The new object URL represents the specified File object or Blob object.
+        const url = URL.createObjectURL(img_data)
+        
+        // Creating a image tag inside imagebox which will hold the cropping view image(uploaded file) to it using the url created before.
+        imagebox.innerHTML += `<img src="${url}" id="image" style="width:100%; max-height: 65vh; overflow-y: auto;">`
+
+        // Storing that cropping view image in a variable
+        const image = document.getElementById('image')
+
+        // Creating a croper object with the cropping view image
+        // The new Cropper() method will do all the magic and diplay the cropping view and adding cropping functionality on the website
+        // For more settings, check out their official documentation at https://github.com/fengyuanchen/cropperjs
+        const cropper = new Cropper(image, {
+            autoCropArea: 0.5,
+            cropBoxMovable:false,
+            cropBoxResizable: false,
+            viewMode: 1,
+            aspectRatio:1,
+            dragMode:'move',
+            minCropBoxWidth:600,
+            minCropBoxHeight:600,
+        })
+
+        const cancelFunc = ()=>{
+            modal.hide()
+            imagebox.innerHTML = "";
+            imgInput.value = null;
+            imgThumb.src = currentThumbSrc;
+            cancel_btnX.removeEventListener('click', cancelFunc);
+            cancel_btn.removeEventListener('click', cancelFunc);
+            crop_btn.removeEventListener('click', cropFunc);
+        }
+
+        const cropFunc = ()=>{
+	        // This method coverts the selected cropped image on the cropper canvas into a blob object
+            cropper.getCroppedCanvas({ width: 600, height: 600, imageSmoothingEnabled: true, imageSmoothingQuality: 'high' }).toBlob((blob)=>{
+                //let fileInputElement = document.getElementById('id_image');
+                // Make a new cropped image file using that blob object, image_data.name will make the new file name same as original image
+                let rnow = new Date().getTime()
+                let imgname = 'petprofile-img-'+rnow+'.jpeg'
+                let file = new File([blob], imgname,{type:"image/jpeg", lastModified:rnow},);
+                // Create a new container
+                let container = new DataTransfer();
+                // Add the cropped image file to the container
+                container.items.add(file);
+                // Replace the original image file with the new cropped image file
+                imgInput.files = container.files;
+                modal.hide()
+                imagebox.innerHTML = "";
+                imgThumb.src = URL.createObjectURL(imgInput.files[0]);
+                deleteImage.value = false;
+                cancel_btnX.removeEventListener('click', cancelFunc);
+                cancel_btn.removeEventListener('click', cancelFunc);
+                crop_btn.removeEventListener('click', cropFunc);
+            },'image/jpeg', 0.95);
+	    }
+
+        cancel_btnX.addEventListener('click', cancelFunc)
+        cancel_btn.addEventListener('click', cancelFunc)
+        crop_btn.addEventListener('click', cropFunc);
+	});	
+
+    alegeImageBtn.addEventListener('click', function(){
+        imgInput.click(); 
+        return false;
+    })
+    
+</script>

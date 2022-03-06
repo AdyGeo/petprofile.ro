@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %} | Contul tau{% endblock title %}
+{% block content %}
+    {% include 'alerts.html' %}
+    <div class="shadow p-sm-5 p-2" style="min-height:65vh">
+        <h3>Contul tau</h3><br>
+        <p><nobr>Nume de utilizator: <strong>{{ userprofile.username }}</strong><a class="ms-2 fs-5" href="{% url 'userprofile-update'%}"><i class="bi bi-pencil-square"></i></a></nobr></p>
+        <p><nobr>Nume si prenume: <strong>{{ userprofile.last_name }} {{ userprofile.first_name }}</strong><a class="ms-2 fs-5" href="{% url 'userprofile-update'%}"><i class="bi bi-pencil-square"></i></a></nobr></p>
+        <p><nobr>E-mail: <strong>{{ userprofile.email }}</strong><a class="ms-2 fs-5" href="{% url 'account_email' %}"><i class="bi bi-pencil-square"></i></a></nobr></p>
+        <form class='form-check form-switch' id="email-notif-acc" method="POST" action="{% url "email-notif-acc" userprofile.pk %}?next=userprofile">
+            {% csrf_token %}
+            <input class="form-check-input" name="email_notif" type="checkbox" id="flexSwitch" {% if email_notif %}checked{% endif %}>
+            <label class="form-check-label" for="flexSwitch">notificari PetProfile pe e-mail</label>
+        </form>
+        <br>
+        {% if user.has_usable_password %}
+            <p><nobr><a class="text-decoration-none" href="{% url 'account_change_password' %}"><i class="bi bi-shield-lock me-1"></i>Schimba parola</a></nobr></p>
+        {% else %}
+            <p><nobr><a class="text-decoration-none" href="{% url 'account_set_password' %}"><i class="bi bi-shield-lock me-1"></i>Seteaza o parola pentru contul tau</a></nobr></p>
+        {% endif %}
+        
+        <p>Sterge contul tau de utilizator si toate datele asociate acestuia (necesita confimare)<a class="ms-2 fs-5" href="{% url 'userprofile-delete' %}"><i class="bi bi-trash text-danger"></i></a></p>
+    </div>
+    
+{% endblock content %}
